@@ -21,7 +21,8 @@
     },
     "homepage": "https://github.com/GithubCGY/cache#readme",
     "dependencies": {
-        "@chengaoyuan/argnames": "^1.0.3"
+        "@chengaoyuan/argnames": "^1.0.3",
+        "@chengaoyuan/prepare": "^1.0.2"
     },
     "devDependencies": {
         "@types/mocha": "^5.2.5",
