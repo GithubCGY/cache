@@ -1,15 +1,13 @@
 import argnames from "@chengaoyuan/argnames";
 import prepare from "@chengaoyuan/prepare";
 
-export function Cacheable({
-    name = "", // 如果不传
-    key = "",
-    expire = 1,
-    condition = ""
-}) {
-    type FuncType = (...args: any[]) => Promise<any>;
-    type DesType = TypedPropertyDescriptor<FuncType>;
-    return (target: any, methodName: string, des: DesType) => {
+type DescriptorType = TypedPropertyDescriptor<(...args: any[]) => Promise<any>>;
+type DecoratorType = (target: any, methodName: string, des: DescriptorType) => void;
+export function Cacheable(cache: string): DecoratorType;
+export function Cacheable({  }: {}): DecoratorType;
+
+export function Cacheable(...args: any[]) {
+    return (target: any, methodName: string, des: DescriptorType) => {
         //
         console.log(target.constructor.name);
     };
