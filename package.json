@@ -1,7 +1,7 @@
 {
     "name": "@chengaoyuan/cache",
     "version": "1.0.0",
-    "description": "基于redis实现的缓存装饰器",
+    "description": "缓存装饰器",
     "main": "dist/index.js",
     "scripts": {
         "test": "mocha -r ts-register --recursive -R spec test/*.ts",
@@ -21,9 +21,7 @@
     },
     "homepage": "https://github.com/GithubCGY/cache#readme",
     "dependencies": {
-        "@chengaoyuan/argnames": "^1.0.3",
-        "@types/redis": "^2.8.10",
-        "redis": "^2.8.0"
+        "@chengaoyuan/argnames": "^1.0.3"
     },
     "devDependencies": {
         "@types/mocha": "^5.2.5",
