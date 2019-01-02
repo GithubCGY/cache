@@ -12,6 +12,7 @@
 
 ```ts
 import { RedisClient } from "redis";
+import RedisCache from "@chengaoyuan/redis-cache";
 import { CacheInit, Cacheable, CachePut, CacheEvict } from "@chengaoyuan/cache";
 CacheInit(
     new RedisCache(
