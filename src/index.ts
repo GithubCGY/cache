@@ -141,27 +141,30 @@ export class Cache {
                     var $key$ = ${config.key ? config.key : ""};
                     return new Promise(function(resolve, reject){
                         var $protocol$ = $info$.protocol;
-                        $protocol$.lock($cache$, $key$, ${lockTime}, function($getLockResult$) {
+                        var $locker$ = $protocol$.create_locker($cache$, $key$);
+                        $locker$.lock(${lockTime}, function($getLockResult$) {
                             if($getLockResult$) {
                                 $protocol$.get($cache$, $key$,  function($cacheValue$) {
-                                    $protocol$.unlock($cache$, $key$);
                                     if ($cacheValue$ !== undefined) {
+                                        $locker$.unlock();
                                         resolve($cacheValue$);
                                     } else {
+                                        if(!(${config.condition ? config.condition : true}) {
+                                            $locker$.unlock();
+                                        }
                                         $function$.call($self$${args ? ", " + args : ""})
                                                 .then(function($retValue$){
                                                     if ($retValue$ !== undefined) {
                                                         if(${config.condition ? config.condition : true}) {
-                                                            $protocol$.lock($cache$, $key$, ${lockTime}, function($setLockResult$){
-                                                                if($setLockResult$) {
-                                                                    $protocol$.set($cache$, $key$, ${config.expire}, $retValue$);
-                                                                    $protocol$.unlock($cache$, $key$);
-                                                                }
-                                                            });
+                                                            $protocol$.set($cache$, $key$, ${config.expire}, $retValue$);
                                                         }
                                                     }
+                                                    $locker$.unlock();
                                                     resolve($retValue$);
-                                                }, reject);
+                                                }, function($callerr$){
+                                                    $locker$.unlock();
+                                                    reject($callerr$);
+                                                });
                                     }
                                 });
                             } else {
@@ -195,10 +198,11 @@ export class Cache {
                                 .then(function($retValue$){
                                     resolve($retValue$);
                                     if(${config.condition ? config.condition : true}) {
-                                        $protocol$.lock($cache$, $key$, ${lockTime}, function($delLockResult$) {
+                                        var $locker$ = $protocol$.create_locker($cache$, $key$);
+                                        $locker$.lock(${lockTime}, function($delLockResult$) {
                                             if($delLockResult$) {
                                                 $protocol$.del($cache$, $key$);
-                                                $protocol$.unlock($cache$, $key$);
+                                                $locker$.unlock();
                                             }
                                         });
                                     }
