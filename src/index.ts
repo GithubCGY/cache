@@ -101,6 +101,35 @@ export class Cache {
         };
     }
 
+    CacheEvictMulti(config: { cache: string; foreach: string; key: string; condition?: string }) {
+        return (target: any, methodName: string, des: DescriptorType) => {
+            const args = argnames(des.value as Function).join(",");
+            des.value = new Function(
+                "$function$",
+                "$info$",
+                "$cache$",
+                `
+                return function(${args}) {
+                    var $self$ = this;
+                    return new Promise(function(resolve, reject){
+                        var $protocol$ = $info$.protocol;
+                        $function$.call($self$${args ? ", " + args : ""})
+                                .then(function($retValue$){
+                                    resolve($retValue$);
+                                    for(var ${config.foreach}) {
+                                        if(${config.condition ? config.condition : true}) {
+                                            var $key$ = ${config.key ? config.key : ""};
+                                            $protocol$.del($cache$, $key$);
+                                        }
+                                    }
+                                }, reject);
+                    })
+                }
+            `
+            )(des.value, this, config.cache);
+        };
+    }
+
     CacheEvictAll(config: { cache: string; condition?: string }) {
         return (target: any, methodName: string, des: DescriptorType) => {
             const args = argnames(des.value as Function).join(",");
@@ -205,6 +234,50 @@ export class Cache {
                                                 $locker$.unlock();
                                             }
                                         });
+                                    }
+                                }, reject);
+                    })
+                }
+            `
+            )(des.value, this, config.cache);
+        };
+    }
+
+    CacheEvictMultiLock(config: { cache: string; foreach: string; key: string; lockTime?: number; condition?: string }) {
+        return (target: any, methodName: string, des: DescriptorType) => {
+            const args = argnames(des.value as Function).join(",");
+            const lockTime = config.lockTime ? config.lockTime : 3;
+            des.value = new Function(
+                "$function$",
+                "$info$",
+                "$cache$",
+                `
+                return function(${args}) {
+                    var $self$ = this;
+                    return new Promise(function(resolve, reject){
+                        var $protocol$ = $info$.protocol;
+                        $function$.call($self$${args ? ", " + args : ""})
+                                .then(function($retValue$){
+                                    resolve($retValue$);
+                                    var $record$ = {};
+                                    var $delfunc$ = function($key$) {
+                                        if($record$[$key$]) {
+                                            return;
+                                        }
+                                        $record$[$key$] = true;
+                                        var $locker$ = $protocol$.create_locker($cache$, $key$);
+                                        $locker$.lock(${lockTime}, function($delLockResult$) {
+                                            if($delLockResult$) {
+                                                $protocol$.del($cache$, $key$);
+                                                $locker$.unlock();
+                                            }
+                                        });
+                                    };
+                                    
+                                    for(var ${config.foreach}) {
+                                        if(${config.condition ? config.condition : true}) {
+                                            $delfunc$(${config.key ? config.key : ""})
+                                        }
                                     }
                                 }, reject);
                     })
