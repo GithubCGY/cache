@@ -139,17 +139,17 @@ export class Cache {
                 return function(${args}) {
                     var $self$ = this;
                     var $key$ = ${config.key ? config.key : ""};
-                    return new Promise(function(resolve, reject){
+                    return new Promise(function(resolve, reject) {
                         var $protocol$ = $info$.protocol;
                         var $locker$ = $protocol$.create_locker($cache$, $key$);
                         $locker$.lock(${lockTime}, function($getLockResult$) {
                             if($getLockResult$) {
-                                $protocol$.get($cache$, $key$,  function($cacheValue$) {
+                                $protocol$.get($cache$, $key$, function($cacheValue$) {
                                     if ($cacheValue$ !== undefined) {
                                         $locker$.unlock();
                                         resolve($cacheValue$);
                                     } else {
-                                        if(!(${config.condition ? config.condition : true}) {
+                                        if(!(${config.condition ? config.condition : true})) {
                                             $locker$.unlock();
                                         }
                                         $function$.call($self$${args ? ", " + args : ""})
@@ -172,9 +172,9 @@ export class Cache {
                                     .then(resolve, reject);
                             }
                             
-                        })
-                    })
-                }
+                        });
+                    });
+                };
             `
             )(des.value, this, config.cache);
         };
