@@ -1,6 +1,6 @@
 {
     "name": "@chengaoyuan/cache",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "缓存装饰器",
     "main": "dist/index.js",
     "scripts": {
